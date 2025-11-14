@@ -1373,6 +1373,12 @@ export class Instance implements Disposable {
       ]);
     }
 
+    // Reset fetchedBytes for the loading phase to avoid double counting with download phase
+    // When cacheOnly is false, fetchedBytes was already incremented during download
+    if (!cacheOnly) {
+      fetchedBytes = 0;
+    }
+
     // Then iteratively, load the shard from cache
     for (let i = 0; i < list.length; ++i) {
       const shard = list[i];
