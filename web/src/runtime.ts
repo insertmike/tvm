@@ -1359,7 +1359,7 @@ export class Instance implements Disposable {
         }
         timeElapsed = Math.ceil((perf.now() - tstart) / 1000);
         fetchedBytes += shard.nbytes;
-        reportCallback(fetchedShards++, /*loading=*/false);
+        reportCallback(++fetchedShards, /*loading=*/false);
       }
     }
     // We launch 4 parallel for loops to limit the max concurrency to 4 download
@@ -1373,11 +1373,9 @@ export class Instance implements Disposable {
       ]);
     }
 
-    // Reset fetchedBytes for the loading phase to avoid double counting with download phase
-    // When cacheOnly is false, fetchedBytes was already incremented during download
-    if (!cacheOnly) {
-      fetchedBytes = 0;
-    }
+    // Reset for the loading phase to avoid double counting with download phase
+    fetchedBytes = 0;
+    fetchedShards = 0;
 
     // Then iteratively, load the shard from cache
     for (let i = 0; i < list.length; ++i) {
@@ -1427,13 +1425,9 @@ export class Instance implements Disposable {
           throw err;
         }
       }
-      if (i === 0) {
-        // Reset for the loading phase to avoid double counting with download phase.
-        fetchedBytes = 0;
-      }
       fetchedBytes += shard.nbytes;
       timeElapsed = Math.ceil((perf.now() - tstart) / 1000);
-      reportCallback(i + 1, /*loading=*/true);
+      reportCallback(++fetchedShards, /*loading=*/true);
     }
   }
 
